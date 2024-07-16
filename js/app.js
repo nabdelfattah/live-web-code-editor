@@ -1,37 +1,64 @@
-document.getElementById("htmlCode").value="<div>\n\n</div>";
-document.getElementById("cssCode").value="<style>\n\n</style>";
-document.getElementById("jsCode").value="<script>\n\n</script>";
+const htmlCodeEl = document.getElementById("htmlCode")
+const cssCodeEl = document.getElementById("cssCode")
+const jsCodeEl = document.getElementById("jsCode")
+const htmlEl = document.getElementById("html")
+const cssEl = document.getElementById("css")
+const jsEl = document.getElementById("js")
+const resultWrapperEl = document.getElementById("result")
+const frame = document.getElementById("preview-window").contentWindow.document;
 
-function showPreview(){
-    var htmlCode = document.getElementById("htmlCode").value;
-    var cssCode = ""+document.getElementById("cssCode").value+"";
-    var jsCode = ""+document.getElementById("jsCode").value+"";
-    var frame = document.getElementById("preview-window").contentWindow.document;
+function wtireToFrame(htmlCode, cssCode, jsCode) {
     frame.open();
     frame.write(htmlCode+cssCode+jsCode);
     frame.close();
 }
 
+function showPreview(){
+    const htmlCode = htmlCodeEl.value;
+    const cssCode = cssCodeEl.value;
+    const jsCode = jsCodeEl.value;
+    wtireToFrame(htmlCode, cssCode, jsCode)
+    localStorage.setItem('code', JSON.stringify({htmlCode, cssCode, jsCode}))
+}
+
 function show(x){
-    document.getElementById("html").style.display="none";
-    document.getElementById("css").style.display="none";
-    document.getElementById("js").style.display="none";
-    document.getElementById("result").style.display="none";
+    htmlEl.style.display="none";
+    cssEl.style.display="none";
+    jsEl.style.display="none";
+    resultWrapperEl.style.display="none";
     document.getElementById(x).style.display="block";
 }
 
 function show_all(){
     if(window.innerWidth>=992)
     {
-        document.getElementById("html").style.display="block";
-        document.getElementById("css").style.display="block";
-        document.getElementById("js").style.display="block";
-        document.getElementById("result").style.display="block";
+        htmlEl.style.display="block";
+        cssEl.style.display="block";
+        jsEl.style.display="block";
+        resultWrapperEl.style.display="block";
     }
-    if(window.innerWidth<992 && document.getElementById("html").style.display=="block")
+    if(window.innerWidth<992 && htmlEl.style.display=="block")
     {
-        document.getElementById("css").style.display="none";
-        document.getElementById("js").style.display="none";
-        document.getElementById("result").style.display="none";
+        cssEl.style.display="none";
+        jsEl.style.display="none";
+        resultWrapperEl.style.display="none";
     }
 }
+
+function retrieveCode () {
+    const code = localStorage.getItem('code')
+    if(!code || code == "") {
+        htmlCodeEl.value="<div>\n\n</div>";
+        cssCodeEl.value="<style>\n\n</style>";
+        jsCodeEl.value="<script>\n\n</script>";
+    } else {
+        const {htmlCode, cssCode, jsCode} = JSON.parse(code)
+        htmlCodeEl.value = htmlCode
+        cssCodeEl.value = cssCode
+        jsCodeEl.value = jsCode
+        wtireToFrame(htmlCode, cssCode, jsCode)
+    }
+}
+
+document.addEventListener("DOMContentLoaded", retrieveCode);
+document.body.addEventListener('resize', show_all)
